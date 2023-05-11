@@ -1,0 +1,17 @@
+.navbar {
+  border-bottom: 1px solid #333;
+  font-family: Montserrat-Regular;
+  font-size: 20px;
+  background-color: white;
+}
+
+.nav-link.disabled {
+  color: rgba(0, 0, 0, .55) !important;
+  font-weight: bold;
+}
+
+.navbar-collapse {
+  flex-basis: 100%;
+  justify-content: center;
+  align-items: end;
+}

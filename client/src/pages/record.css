@@ -1,0 +1,46 @@
+@font-face {
+  font-family: 'Montserrat-Light';
+  src: local('Montserrat-Light'),
+    url(../assets/fonts/Montserrat/static/Montserrat-Light.ttf);
+}
+
+button {
+  margin-top: 20px;
+}
+
+.custom-btn {
+  width: 150px;
+  height: 50px;
+  border: 2px solid #000;
+  font-family: Montserrat-Light;
+  font-size: 17px;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.btn-2:after {
+  position: absolute;
+  content: "";
+  top: 5px;
+  left: 7px;
+  width: 90%;
+  height: 80%;
+  border: 1px solid #000;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.btn-2:hover:after {
+  opacity: 1;
+}
+
+/* h1 {
+  font-family: Montserrat-Light;
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
+} */
