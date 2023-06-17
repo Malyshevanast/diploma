@@ -1,4 +1,4 @@
-const { Record, User } = require('../models');
+const { Record } = require('../models');
 
 exports.createRecord = async (data) => {
   const record = await Record.create({
@@ -8,14 +8,16 @@ exports.createRecord = async (data) => {
   return { success: true, record };
 };
 
-exports.updateRecord = async (record, data) => {
-  await record.update(data);
+exports.updateRecord = async (id, data) => {
+  await Record.update(data, { where: { id } });
 
-  return { success: true, record };
+  return { success: true };
 };
 
-exports.deleteRecord = async (user) => {
-  await user.destroy();
+exports.deleteRecord = async (id) => {
+  await Record.destroy({ where: { id } });
+
+  return { success: true };
 };
 
 exports.getOne = async (param) => {

@@ -15,21 +15,23 @@ const SignIn = () => {
   const navigate = useNavigate();
   useLoginGuard({ loggedIn: true, path: "/" });
 
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const onLogin = async () => {
-    const { success, token, message } = await signIn({ email, password });
+    try {
+      const { success, token, message } = await signIn({ email, password });
+      if (!success) {
+        alert(message);
+        setPassword("");
+        return;
+      }
 
-    if (!success) {
-      alert(message);
-      setPassword("");
-      return;
+      localStorage.setItem("token", token);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
     }
-
-    alert(message);
-    localStorage.setItem("token", token);
-    navigate("/");
   };
 
   const handleSubmit = (e) => {
@@ -74,7 +76,7 @@ const SignIn = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
 
-                  <button className="custom-btn btn-2" type="submit" onClick={handleSubmit}>
+                  <button className="custom-btn btn-2 w-100" type="submit" onClick={handleSubmit}>
                     Войти
                   </button>
                 </Form.Group>

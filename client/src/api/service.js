@@ -6,10 +6,30 @@ const getServices = async () => {
   return { success, services, message };
 };
 
-const createService = async () => {
-  const { success, service, message } = await postData("/service/create");
+const createService = async (data) => {
+  const { success, service, message } = await postData("/service/create", data);
 
   return { success, service, message };
 };
 
-export { getServices, createService };
+const updateService = async (serviceId, data) => {
+  try {
+    const { success, message } = await postData("/service/update", { serviceId, ...data });
+
+    return { success, message };
+  } catch (error) {
+    return console.error(error);
+  }
+};
+
+const deleteService = async (serviceId) => {
+  try {
+    const { status } = await postData("/service/delete", { serviceId });
+
+    return { status };
+  } catch (error) {
+    return console.log(error);
+  }
+};
+
+export { getServices, createService, updateService, deleteService };

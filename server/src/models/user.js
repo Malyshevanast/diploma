@@ -25,14 +25,6 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
-      email_is_confirmed: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      email_confirmation_code: {
-        type: DataTypes.STRING,
-      },
       password: {
         allowNull: false,
         type: DataTypes.STRING,

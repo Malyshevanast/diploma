@@ -11,6 +11,7 @@ const routeExeption = require('../utilities/routeExeption');
 router.post('/create', async (req, res) => {
   try {
     const { body } = req;
+    console.log(body);
     const { success, service } = await createService(body);
     if (!success) {
       return res.send({ success, message: 'Ошибка на стороне сервера' });
@@ -25,18 +26,14 @@ router.post('/create', async (req, res) => {
 
 router.post('/update', async (req, res) => {
   try {
-    const { service, body } = req;
+    const { serviceId, name, description, price } = req.body;
 
-    if (!service) {
-      return res.send({ success: false, message: 'Услуга не найдена' });
-    }
-
-    const { success } = await updateService(service, body);
+    const { success } = await updateService(serviceId, { name, description, price });
     if (!success) {
       return res.send({ success, message: 'Не удалось обновить услугу!' });
     }
 
-    return res.status(201).send({ success });
+    return res.status(200).send({ success, message: 'Услуга обновлена' });
   } catch (error) {
     console.log(error);
     return routeExeption(res, error);
@@ -45,7 +42,11 @@ router.post('/update', async (req, res) => {
 
 router.post('/delete', async (req, res) => {
   try {
-    const { service } = req;
+    const { serviceId } = req.body;
+
+    const { service } = await getOne(serviceId);
+
+    console.log(service);
 
     if (!service) {
       return res.send({ success: false, message: 'Услуга не найдена' });
@@ -56,7 +57,7 @@ router.post('/delete', async (req, res) => {
       return res.send({ success, message: 'Не удалось удалить услугу' });
     }
 
-    return res.status(200).send({ success });
+    return res.status(204).send({ success });
   } catch (error) {
     console.log(error);
     return routeExeption(res, error);

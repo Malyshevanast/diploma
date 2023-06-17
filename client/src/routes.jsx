@@ -1,3 +1,5 @@
+/* eslint-disable import/no-cycle */
+/* eslint-disable react/jsx-no-constructed-context-values */
 import { Route, Routes } from "react-router-dom";
 import AdminPage from "./pages/Admin";
 import HomePage from "./pages/Home";

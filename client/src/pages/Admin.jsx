@@ -1,11 +1,13 @@
+/* eslint-disable consistent-return */
 /* eslint-disable react/no-array-index-key */
+import { useEffect, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
-import { useEffect, useState } from "react";
+import { getRecords } from "../api/record";
+import { getRequests, updateRequest } from "../api/request";
 import AddPhotoForm from "../components/AddPhotoForm";
 import AddServiceForm from "../components/AddServiceForm";
-import { getRecords } from "../api/record";
-import { getRequests } from "../api/request";
+import RecordTableItem from "../components/RecordTableItem";
 
 const AdminPage = () => {
   const [records, setRecords] = useState(null);
@@ -14,12 +16,16 @@ const AdminPage = () => {
   const requestsTableHead = ["#", "Контактная информация", "Вопрос", "Дата обращения", "Ответ"];
 
   const getRequestList = async () => {
-    const { success, requests: requestsList, message } = await getRequests();
-    if (!success) {
-      return alert(message);
-    }
+    try {
+      const { success, requests: requestsList } = await getRequests();
+      if (!success) {
+        return;
+      }
 
-    return setRequests(requestsList);
+      return setRequests(requestsList);
+    } catch (error) {
+      return console.error(error);
+    }
   };
 
   const recordsTableHead = [
@@ -32,12 +38,25 @@ const AdminPage = () => {
   ];
 
   const getRecordsList = async () => {
-    const { success, records: recordsList, message } = await getRecords();
-    if (!success) {
-      return alert(message);
-    }
+    try {
+      const { success, records: recordsList } = await getRecords();
+      if (!success) {
+        return;
+      }
 
-    return setRecords(recordsList);
+      return setRecords(recordsList);
+    } catch (error) {
+      return console.error(error);
+    }
+  };
+
+  const confirmRequest = async (requestId) => {
+    try {
+      await updateRequest(requestId);
+      getRequestList();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -50,8 +69,6 @@ const AdminPage = () => {
       <Table
         responsive="sm"
         bordered
-        hover
-        striped
         title="Обращения"
         style={{ backgroundColor: "white", borderRadius: 5 }}
       >
@@ -77,21 +94,30 @@ const AdminPage = () => {
                   </td>
                   <td>{request.question}</td>
                   <td>{new Intl.DateTimeFormat("ru-RU").format(new Date(request.created_at))}</td>
-                  <td>{request.answer ? "Ответ" : "Ответ не предоставлен"}</td>
+                  <td align="center">
+                    {request.is_answered ? (
+                      "Обработано"
+                    ) : (
+                      <>
+                        Обращение не обработано <br />
+                        <button type="button" onClick={() => confirmRequest(request.id)}>
+                          Отметить ответ
+                        </button>
+                      </>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </>
         ) : (
-          <h1 className="d-flex justify-content-center">Таблица с записями пуста</h1>
+          <h1 className="text-center">Таблица с обращениями пуста</h1>
         )}
       </Table>
 
       <Table
         responsive="sm"
         bordered
-        hover
-        striped
         title="Записи"
         style={{ backgroundColor: "white", borderRadius: 5 }}
       >
@@ -109,29 +135,12 @@ const AdminPage = () => {
             </thead>
             <tbody>
               {records.map((record, index) => (
-                <tr key={record.id}>
-                  <td align="center">{index + 1}</td>
-                  <td>{record.service.name}</td>
-                  <td>{new Intl.DateTimeFormat("ru-RU").format(new Date(record.date))}</td>
-                  <td>
-                    <p>Имя: {record.client.username}</p>
-                    <p>Почта: {record.client.email}</p>
-                    <p>
-                      {record.client.email_is_confirmed
-                        ? "Почта подтверждена"
-                        : "Почта неподтверждена"}
-                    </p>
-                  </td>
-                  <td>
-                    {record.question !== "null" ? record.question : "Комментарии отсутствуют"}
-                  </td>
-                  <td>Запись {record.is_confirmed ? "подтвержена" : "неподтверждена"}</td>
-                </tr>
+                <RecordTableItem reload={getRecordsList} record={record} index={index} />
               ))}
             </tbody>
           </>
         ) : (
-          <h1 className="d-flex justify-content-center">Таблица с записями пуста</h1>
+          <h1 className="text-center">Таблица с записями пуста</h1>
         )}
       </Table>
 

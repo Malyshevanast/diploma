@@ -1,12 +1,17 @@
+/* eslint-disable import/no-cycle */
 import { ImgComparisonSlider } from "@img-comparison-slider/react";
-import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
+import { useEffect, useState } from "react";
 import Card from "react-bootstrap/Card";
 import Carousel from "react-bootstrap/Carousel";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
+import Image from "react-bootstrap/Image";
 import Row from "react-bootstrap/Row";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
+import { NavLink } from "react-router-dom";
+import { getPhotos } from "../api/photo";
 import { createRequest } from "../api/request";
 import { getServices } from "../api/service";
 import afterCity from "../assets/afterCity.jpg";
@@ -16,35 +21,59 @@ import beforeCity from "../assets/beforeCity.jpg";
 import beforeGirl from "../assets/beforeGirl.jpg";
 import beforeTree from "../assets/beforeTree.jpg";
 import first from "../assets/first.jpg";
-import photo2 from "../assets/photo_2.jpg";
-import photoI from "../assets/photo_I.jpg";
 import "./home.css";
 
 const Home = () => {
+  const [isShown, setIsShown] = useState(false);
   const [validated, setValidated] = useState(false);
-  const [serviceList, setServiceList] = useState(null);
+  const [serviceList, setServiceList] = useState([]);
+  const [photoList, setPhotoList] = useState([]);
 
-  const [fio, setFio] = useState(null);
-  const [email, setEmail] = useState(null);
-  const [question, setQuestion] = useState(null);
+  const [fio, setFio] = useState("");
+  const [email, setEmail] = useState("");
+  const [question, setQuestion] = useState("");
 
-  // const emailRegex =
-  //   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const getServicesList = async () => {
+    try {
+      const { success, services } = await getServices();
+      if (!success) {
+        return;
+      }
 
-  const getCategoriesList = async () => {
-    const { success, services, message } = await getServices();
-    if (!success) {
-      console.log(message);
+      setServiceList(services);
       return;
+    } catch (error) {
+      console.error(error);
     }
-
-    setServiceList(services);
   };
 
-  const postRequest = () => {
-    createRequest({ fio, email, question }).then(({ message }) => {
-      return alert(message);
-    });
+  const postRequest = async () => {
+    try {
+      const { success } = await createRequest({ fio, email, question });
+      if (success) {
+        setIsShown(true);
+        setEmail("");
+        setFio("");
+        setQuestion("");
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getPhotoList = async () => {
+    try {
+      const { success, photos } = await getPhotos();
+
+      if (!success) {
+        return console.log("Can not get list of photos");
+      }
+
+      return setPhotoList(photos);
+    } catch (error) {
+      return console.error(error);
+    }
   };
 
   const handleSubmit = (event) => {
@@ -57,14 +86,18 @@ const Home = () => {
     }
 
     setValidated(true);
+    if (!validated) {
+      return;
+    }
 
-    if (validated && fio && email && question) {
+    if (validated && fio !== "" && email !== "" && question !== "") {
       postRequest();
     }
   };
 
   useEffect(() => {
-    getCategoriesList();
+    getServicesList();
+    getPhotoList();
   }, []);
 
   return (
@@ -81,60 +114,96 @@ const Home = () => {
         </a>
       </div>
 
-      <Container style={{ marginTop: "20px" }}>
-        <Row>
-          <Col>
+      <Container className="position-relative my-5">
+        <Row xs={1} md={2}>
+          <Col md={8}>
             <h1>Обо мне</h1>
 
             <p>
               Меня зовут Александр. Я профессиональный фотограф, с опытом работы более 8 лет. Для
               меня это не просто хобби, а способ самовыражения и восприятия мира. <br />
-              <br /> Я работаю в Москве и Санкт-Петербурге. Безупречно организованная съемка и моя
-              любовь к фотографии станут гарантом качественной работы и ваших незабываемых эмоций. Я
-              работаю с различными проектами: от простых семейных фотосессий до сложных
-              коммерческих. Люблю общаться с людьми, узнавать их истории и сочинять. новые. Вместе
-              мы создадим нечто уникальное!
+              <br /> Я работаю в Владимире. Безупречно организованная съемка и моя любовь к
+              фотографии станут гарантом качественной работы и ваших незабываемых эмоций. Я работаю
+              с различными проектами: от простых семейных фотосессий до сложных коммерческих. Люблю
+              общаться с людьми, узнавать их истории и сочинять. новые. Вместе мы создадим нечто
+              уникальное!
             </p>
           </Col>
 
-          <Col className="pictures">
-            <img
-              className="pictures1"
-              style={{ marginLeft: "100px", marginTop: "80px" }}
-              src={photoI}
-              alt="Фотография"
-            />
-
-            <img className="pictures2" src={photo2} alt="Фотография" />
+          <Col xs={12} md={4}>
+            <Image className="w-100" src="/assets/main-photo.png" alt="Фотография" />
           </Col>
         </Row>
       </Container>
 
-      {serviceList ? (
+      {serviceList.length > 0 ? (
         <Container style={{ margin: "auto" }}>
           <h1>Тарифы</h1>
 
-          <Row>
-            {serviceList.map((category) => (
-              <Col className="my-1" xs={12} md={4} key={category.id}>
-                <Card style={{ minHeight: 50 }}>
-                  <Card.Body className="d-flex flex-column">
-                    <Card.Title className="title">{category.name}</Card.Title>
+          <Row xs={1} className="justify-content-center my-3 g-4">
+            {serviceList.slice(0, 2).map((service) => {
+              const servicePhotos = photoList.map((photo) => {
+                if (photo.tags.includes(service.name)) {
+                  return photo.filename;
+                }
+                return null;
+              });
 
-                    <Card.Text className="text">{category.description}</Card.Text>
+              return (
+                <Col xs={12} md={6} key={service.id}>
+                  <Card className="position-relative" style={{ minHeight: 50 }}>
+                    <Card.Body className="d-flex flex-column">
+                      <Carousel className="mb-3">
+                        {servicePhotos &&
+                          servicePhotos.map((photo) => {
+                            if (!photo) {
+                              return null;
+                            }
 
-                    <Button className="custom-btn btn-2" href="/service">
-                      Поподробнее
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
+                            return (
+                              <Carousel.Item>
+                                <img
+                                  className="d-block w-100"
+                                  src={`/images/${photo}`}
+                                  alt="First slide"
+                                  style={{ aspectRatio: 3 / 4 }}
+                                />
+                              </Carousel.Item>
+                            );
+                          })}
+                      </Carousel>
+
+                      <Card.Title className="text-capitalize">{service.name}</Card.Title>
+
+                      <Card.Text className="text-capitalize">
+                        Описание:{" "}
+                        {service.description.length === 0 ? "отсутвует" : service.description}
+                      </Card.Text>
+
+                      <Card.Text>
+                        <b>Стоимость: </b>
+                        {new Intl.NumberFormat("ru-RU", {
+                          style: "currency",
+                          currency: "RUB",
+                          maximumFractionDigits: 0,
+                        }).format(service.price)}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+
+            <NavLink to="/service">
+              <button className="w-100 custom-btn btn-2" type="button">
+                Смотреть все
+              </button>
+            </NavLink>
           </Row>
         </Container>
       ) : null}
 
-      <Container className="content" style={{ textAlign: "center" }}>
+      <Container className="text-center my-5">
         <h1>Мои работы</h1>
 
         <Carousel>
@@ -166,7 +235,10 @@ const Home = () => {
 
       <Container className="content">
         <Card className="m-2 p-3">
-          <Card.Title className="mx-auto">Остались вопросы? Свяжитесь с нами</Card.Title>
+          <Card.Title className="mx-auto">
+            Остались вопросы?
+            <br /> Свяжитесь с нами
+          </Card.Title>
 
           <Form noValidate validated={validated} onSubmit={handleSubmit}>
             <Row>
@@ -176,6 +248,7 @@ const Home = () => {
                 <Form.Control
                   required
                   type="text"
+                  value={fio}
                   placeholder="ФИО"
                   onChange={(e) => setFio(e.target.value)}
                 />
@@ -191,6 +264,7 @@ const Home = () => {
                 <Form.Control
                   required
                   type="email"
+                  value={email}
                   placeholder="name@example.com"
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -207,6 +281,7 @@ const Home = () => {
               <Form.Control
                 required
                 as="textarea"
+                value={question}
                 rows={3}
                 onChange={(e) => setQuestion(e.target.value)}
               />
@@ -216,9 +291,26 @@ const Home = () => {
               </Form.Control.Feedback>
             </Form.Group>
 
-            <Button type="submit">Отправить</Button>
+            <button className="custom-btn btn-2 w-100" type="submit">
+              Отправить
+            </button>
           </Form>
         </Card>
+
+        <ToastContainer className="position-absolute end-0 p-2">
+          <Toast
+            onClose={() => setIsShown(false)}
+            bg="success"
+            show={isShown}
+            delay={5000}
+            autohide
+          >
+            <Toast.Header>
+              <strong className="me-auto">Отправка заявки</strong>
+            </Toast.Header>
+            <Toast.Body>Ваша заявка принята, мы с вами свяжемся</Toast.Body>
+          </Toast>
+        </ToastContainer>
       </Container>
     </>
   );

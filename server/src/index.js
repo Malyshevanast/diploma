@@ -13,6 +13,11 @@ const PORT = process.env.PORT || 8080;
 server.use(express.static('public'));
 server.use('/images', express.static(path.join('public', 'data', 'uploads')));
 
+// server.use(express.static(path.join(__dirname, 'build')));
+// server.get('*', (_, res) => {
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
+
 server.use(corsConfig);
 server.use(express.json());
 server.use('/api/v1', apiRoutes);

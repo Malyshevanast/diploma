@@ -27,8 +27,8 @@ button {
   content: "";
   top: 5px;
   left: 7px;
-  width: 90%;
-  height: 80%;
+  width: calc(100% - 14px);
+  height: calc(100% - 10px);
   border: 1px solid #000;
   opacity: 0;
   transition: all 0.3s ease;

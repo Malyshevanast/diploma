@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { useState } from "react";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
@@ -13,22 +14,26 @@ import "./record.css";
 const SignUp = () => {
   useSignupGuard({ loggedIn: true, path: "/" });
   const navigate = useNavigate();
-  const [username, setUsername] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const onSignUp = async (e) => {
-    e.preventDefault();
-    const { success, token, message } = await signUp({ username, email, password });
+    try {
+      e.preventDefault();
+      const { success, token, message } = await signUp({ username, email, password });
 
-    if (!success) {
-      alert(message);
-      setPassword("");
-      return;
+      if (!success) {
+        alert(message);
+        setPassword("");
+        return;
+      }
+
+      localStorage.setItem("token", token);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
     }
-
-    localStorage.setItem("token", token);
-    navigate("/");
   };
 
   return (
@@ -43,8 +48,8 @@ const SignUp = () => {
                 <Form.Group className="reg-fg">
                   <Form.Label>Имя</Form.Label>
                   <Form.Control
-                    type="name"
-                    placeholder="Enter name"
+                    type="text"
+                    placeholder="Введите имя"
                     id="name"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
@@ -54,7 +59,7 @@ const SignUp = () => {
                   <Form.Label>Адрес электронной почты</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter email"
+                    placeholder="Введите email"
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -64,14 +69,14 @@ const SignUp = () => {
                   <Form.Label>Пароль</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Password"
+                    placeholder="Введите пароль"
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </Form.Group>
-                <button className="custom-btn btn-2" type="submit">
-                  Войти
+                <button className="custom-btn btn-2 w-100" type="submit">
+                  Зарегистрироваться
                 </button>
               </Form>
               <Link className="mx-auto" to="/sign-in">

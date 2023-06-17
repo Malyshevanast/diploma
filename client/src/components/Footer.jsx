@@ -24,7 +24,7 @@ const Footer = () => {
             </li>
             <li>
               <Link className={pathname === "/service" ? "current" : ""} to="/service">
-                Услуги
+                Тарифы
               </Link>
             </li>
             <li>

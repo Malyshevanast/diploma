@@ -4,11 +4,6 @@
     url(../assets/fonts/Montserrat/static/Montserrat-Light.ttf);
 }
 
-/* .content {
- text-align: center;
-
-} */
-
 h1 {
   font-family: Montserrat-Light;
   text-align: left;
@@ -20,24 +15,6 @@ p {
   font-family: Montserrat-Thin;
   font-size: 17px;
 
-}
-
-.pictures {
-  position: relative;
-  top: 0;
-  left: 0;
-}
-
-.pictures1 {
-  position: relative;
-  top: 0;
-  left: 0;
-}
-
-.pictures2 {
-  position: absolute;
-  top: 0px;
-  left: 330px;
 }
 
 .first_slide {
@@ -63,7 +40,7 @@ div[class*=box] {
 .first_slide .btn {
   position: absolute;
   top: 70%;
-  left: 12%;
+  left: 30%;
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   line-height: 50px;

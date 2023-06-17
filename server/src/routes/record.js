@@ -25,17 +25,14 @@ router.post('/create', async (req, res) => {
 
 router.post('/update', async (req, res) => {
   try {
-    const { record, body } = req;
-    if (!record) {
-      return res.send({ success: false, message: 'Запись не найдена' });
-    }
+    const { recordId, isConfirmed } = req.body;
 
-    const { success } = await updateRecord(record, body);
+    const { success } = await updateRecord(recordId, { is_confirmed: isConfirmed });
     if (!success) {
       return res.send({ success, message: 'Не удалось обновить запись!' });
     }
 
-    return res.status(201).send({ success });
+    return res.status(200).send({ success });
   } catch (error) {
     console.log(error);
     return routeExeption(res, error);
@@ -44,18 +41,14 @@ router.post('/update', async (req, res) => {
 
 router.post('/delete', async (req, res) => {
   try {
-    const { record } = req;
+    const { recordId } = req.body;
 
-    if (!record) {
-      return res.send({ success: false, message: 'Запись не найдена' });
-    }
-
-    const { success } = await deleteRecord(record);
+    const { success } = await deleteRecord(recordId);
     if (!success) {
       return res.send({ success, message: 'Не удалось удалить запись' });
     }
 
-    return res.status(200).send({ success });
+    return res.status(204).send({ success });
   } catch (error) {
     console.log(error);
     return routeExeption(res, error);

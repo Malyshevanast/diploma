@@ -23,6 +23,11 @@ module.exports = {
         allowNull: false,
         type: DataTypes.STRING,
       },
+      is_answered: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       created_at: {
         allowNull: false,
         type: DataTypes.DATE,

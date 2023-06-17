@@ -8,7 +8,7 @@ const upload = require('./middlewares/multer');
 
 const router = express.Router();
 
-router.use('/user', userRoutes);
+router.use('/user', upload.none(), userRoutes);
 router.use('/photo', photoRoutes);
 router.use('/service', upload.none(), serviceRoutes);
 router.use('/record', upload.none(), recordRoutes);

@@ -9,18 +9,20 @@ const {
   getUserDetails,
 } = require('../controllers/user');
 const routeExeption = require('../utilities/routeExeption');
-const upload = require('./middlewares/multer');
 const checkUser = require('./middlewares/check-user');
 const checkToken = require('./middlewares/check-token');
 require('dotenv').config();
 
-router.post('/auth', upload.none(), checkUser, async (req, res) => {
+router.post('/auth', checkUser, async (req, res) => {
   try {
     const { user, body } = req;
+    if (!user) {
+      return res.send({ success: false, message: 'Wrong Credentials' });
+    }
 
     const isCompared = await compare(body.password, user.password);
     if (!isCompared) {
-      return res.status(203).send({ success: false, message: 'Wrong Credentials' });
+      return res.send({ success: false, message: 'Wrong Credentials' });
     }
 
     const payload = { id: user.id, role: user.role };
@@ -33,19 +35,23 @@ router.post('/auth', upload.none(), checkUser, async (req, res) => {
   }
 });
 
-router.post('/create', upload.none(), checkUser, async (req, res) => {
+router.post('/create', checkUser, async (req, res) => {
   try {
     const { user, body } = req;
     if (user) {
       return res.send({ success: false, message: 'Пользователь уже существует' });
     }
+    console.log(body);
 
     const { success, user: newUser } = await register(body);
     if (!success) {
       return res.send({ success, message: 'Ошибка на стороне сервера' });
     }
 
-    return res.status(201).send({ success, user: newUser });
+    const payload = { id: newUser.id, role: newUser.role };
+    const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '6h' });
+
+    return res.status(201).send({ success, user: newUser, token });
   } catch (error) {
     console.log(error);
     return routeExeption(res, 500, error);
@@ -54,18 +60,14 @@ router.post('/create', upload.none(), checkUser, async (req, res) => {
 
 router.post('/update', checkUser, async (req, res) => {
   try {
-    const { user, body } = req;
+    const { userId, username, email, password } = req.body;
 
-    if (!user) {
-      return res.send({ success: false, message: 'Пользователь не найден' });
-    }
-
-    const { success } = await update(user, body);
+    const { success } = await update(userId, { username, email, password });
     if (!success) {
       return res.send({ success, message: 'Something went wrong' });
     }
 
-    return res.status(201).send({ success });
+    return res.status(200).send({ success, message: 'Данные обновлены' });
   } catch (error) {
     console.log(error);
     return routeExeption(res, 500, error);
@@ -103,7 +105,7 @@ router.get('/all', async (_, res) => {
   }
 });
 
-router.get('/details', upload.none(), checkToken, async (req, res) => {
+router.get('/details', checkToken, async (req, res) => {
   try {
     const { user: currentUser } = req;
     const { success, user } = await getUserDetails(currentUser.id);

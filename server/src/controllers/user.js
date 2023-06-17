@@ -17,16 +17,20 @@ exports.register = async (data) => {
   return { success: true, user };
 };
 
-exports.update = async (user, data) => {
-  const { password } = data;
-  if (password) {
-    const passwordHash = await hash(password, 10);
-    data.password = passwordHash;
+exports.update = async (id, data) => {
+  try {
+    const { password } = data;
+    if (password) {
+      const passwordHash = await hash(password, 10);
+      data.password = passwordHash;
+    }
+
+    await User.update(data, { where: { id } });
+
+    return { success: true };
+  } catch (error) {
+    return console.log(error);
   }
-
-  await user.update(data);
-
-  return { success: true, user };
 };
 
 exports.delete = async (user) => {

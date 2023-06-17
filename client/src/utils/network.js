@@ -9,13 +9,7 @@ export const getData = async (path) => {
   const response = await fetch(`${baseURL}/api/v1/${path}`, {
     method: "GET",
     headers,
-  })
-    .then((res) => res.json())
-    .catch(() => ({
-      success: false,
-      code: "NETWORK_ERROR",
-      message: "Network error",
-    }));
+  });
 
   if (!response.success) {
     if (!response.code) {
@@ -43,13 +37,7 @@ export const postData = async (path, body) => {
     method: "POST",
     headers,
     body: formData,
-  })
-    .then((res) => res.json())
-    .catch(() => ({
-      success: false,
-      code: "NETWORK_ERROR",
-      message: "Network error",
-    }));
+  });
 
   if (!response.success) {
     if (!response.code) {

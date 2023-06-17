@@ -8,14 +8,25 @@ exports.createService = async (data) => {
   return { success: true, service };
 };
 
-exports.updateService = async (service, data) => {
-  await service.update(data);
+exports.updateService = async (id, data) => {
+  try {
+    await Service.update(data, { where: { id } });
 
-  return { success: true, service };
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false };
+  }
 };
 
-exports.deleteService = async (user) => {
-  await user.destroy();
+exports.deleteService = async (service) => {
+  try {
+    await service.destroy();
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false };
+  }
 };
 
 exports.getAll = async () => {
@@ -26,14 +37,19 @@ exports.getAll = async () => {
   return { success: true, services };
 };
 
-exports.getOne = async (param) => {
-  const service = await Service.findOne({
-    where: { param },
-    include: 'record',
-  });
-  if (!service) {
-    return { success: false };
-  }
+exports.getOne = async (id) => {
+  try {
+    const service = await Service.findOne({
+      where: { id },
+      include: 'record',
+    });
 
-  return { success: true, service };
+    if (!service) {
+      return { success: false };
+    }
+
+    return { success: true, service };
+  } catch (error) {
+    return console.log(error);
+  }
 };

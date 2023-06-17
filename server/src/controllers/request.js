@@ -1,5 +1,15 @@
 const { Request } = require('../models');
 
+exports.findRequests = async () => {
+  try {
+    const requests = await Request.findAll();
+    return { success: true, requests };
+  } catch (error) {
+    console.error(new Error(error));
+    return { status: 500, success: false, message: 'Controller exception', error };
+  }
+};
+
 exports.createRequest = async (body) => {
   try {
     await Request.create(body);
@@ -11,12 +21,13 @@ exports.createRequest = async (body) => {
   }
 };
 
-exports.findRequests = async () => {
+exports.updateRequest = async ({ id }) => {
   try {
-    const requests = await Request.findAll();
-    return { success: true, requests };
+    await Request.update({ is_answered: true }, { where: { id } });
+
+    return { success: true, message: 'Статус обращения успешно обновлён' };
   } catch (error) {
-    console.error(new Error(error));
+    console.error(error);
     return { status: 500, success: false, message: 'Controller exception', error };
   }
 };

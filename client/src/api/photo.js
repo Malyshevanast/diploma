@@ -1,15 +1,31 @@
 import { getData, postData } from "./index";
 
 const uploadPhotos = async ({ files, tags }) => {
-  const { success } = await postData("/photo/upload", { files, tags });
+  try {
+    const { success } = await postData("/photo/upload", { files, tags });
 
-  return { success };
+    return { success };
+  } catch (error) {
+    return console.log(error);
+  }
 };
 
 const getPhotos = async () => {
-  const { success, photos } = await getData("/photo/all");
+  try {
+    const { success, photos } = await getData("/photo/all");
 
-  return { success, photos };
+    return { success, photos };
+  } catch (error) {
+    return console.log(error);
+  }
 };
 
-export { uploadPhotos, getPhotos };
+const deletePhoto = async (data) => {
+  try {
+    await postData("/photo/delete", data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { uploadPhotos, deletePhoto, getPhotos };
